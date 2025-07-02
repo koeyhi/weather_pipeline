@@ -1,0 +1,8 @@
+# Python 기본 라이브러리
+pandas
+requests
+slack_sdk
+python-dotenv
+
+# 필요하면 DB 드라이버 추가
+psycopg2-binary
