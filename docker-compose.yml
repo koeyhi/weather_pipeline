@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: koeyhi
+      POSTGRES_PASSWORD: koeyhi
+      POSTGRES_DB: koeyhi
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+
+  airflow-webserver:
+    image: apache/airflow:2.8.1
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://koeyhi:koeyhi@postgres/koeyhi
+      AIRFLOW__CORE__FERNET_KEY: ''
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./data:/opt/airflow/data
+    ports:
+      - "8080:8080"
+    command: webserver
+    env_file:
+      - .env
+
+  airflow-scheduler:
+    image: apache/airflow:2.8.1
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://koeyhi:koeyhi@postgres/koeyhi
+      AIRFLOW__CORE__FERNET_KEY: ''
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./data:/opt/airflow/data
+    command: scheduler
+    env_file:
+      - .env
+
+volumes:
+  postgres_db:
